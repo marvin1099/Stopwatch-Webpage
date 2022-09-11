@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Stopwatch</title>
+
+	<style type="text/css">
+
+.back{
+	/*Change all "black" tags to "transparent" later*/
+	background-color: black;
+}
+.container{
+    height: 300px;
+    width: 100%;
+}
+
+#display{
+    width: 100%;
+    font-size: 72px;
+    text-align: center;
+    margin: 0px auto;
+    color: #cc00cc;
+}
+#start{
+	background-color: transparent;
+	color: white;
+}
+#slash{
+	background-color: transparent;
+	color: white;
+}
+#pause{
+	background-color: transparent;
+	color: gray;
+}
+#reset{
+	background-color: transparent;
+	color: white;
+}
+#fname{
+	background-color: transparent;
+	color: gray;
+	border: 0px solid;
+	text-align: center;
+	width: 90px;
+}
+#zeros{
+	background-color: transparent;
+	color: white;
+}
+#set{
+	background-color: transparent;
+	color: white;
+}
+#clear{
+	background-color: transparent;
+	color: white;
+}
+.buttons{
+    text-align: center;
+    position: relative;
+	top: 30px;
+}
+
+
+    </style>
+    <script type="text/javascript">
+
+//Define vars to hold time values
+let milsec = 0
+let seconds = 0;
+let minutes = 0;
+let hours = 0;
+
+//Define vars to hold "display" value
+let displayMilsec = 0
+let displaySeconds = 0;
+let displayMinutes = 0;
+let displayHours = 0;
+
+//Define var to hold setInterval() function
+let interval = null;
+
+//Define var to hold stopwatch status
+let status = "stopped";
+
+//Stopwatch function (logic to determine when to increment next value, etc.)
+function stopWatch(){
+
+    milsec++;
+
+    //Logic to determine when to increment next value
+    if (milsec / 100 === 1) {
+		milsec = 0
+		seconds++;
+		if(seconds / 60 === 1){
+			seconds = 0;
+			minutes++;
+			if(minutes / 60 === 1){
+				minutes = 0;
+				hours++;
+			}
+		}
+    }
+	setDisplay()
+}
+
+function setDisplay() {
+	//If seconds/minutes/hours are only one digit, add a leading 0 to the value
+    
+    if(milsec < 10){
+        displayMilsec = "0" + milsec.toString();
+    }
+    else{
+        displayMilsec = milsec;
+    }
+    if(seconds < 10){
+        displaySeconds = "0" + seconds.toString();
+    }
+    else{
+        displaySeconds = seconds;
+    }
+
+    if(minutes < 10){
+        displayMinutes = "0" + minutes.toString();
+    }
+    else{
+        displayMinutes = minutes;
+    }
+
+    if(hours < 10){
+        displayHours = "0" + hours.toString();
+    }
+    else{
+        displayHours = hours;
+    }
+
+    //Display updated time values to user
+    document.getElementById("display").innerHTML = displayHours + ":" + displayMinutes + ":" + displaySeconds + ":" + displayMilsec;
+}
+
+
+function start(){
+
+    if(status === "stopped"){
+
+        //Start the stopwatch (by calling the setInterval() function)
+        interval = window.setInterval(stopWatch, 10);
+        document.getElementById("start").style.color = 'gray';
+        document.getElementById("pause").style.color = 'white';
+        //document.getElementById("startStop").innerHTML = "Pause";
+        status = "started";
+
+    }
+	else{
+
+        window.clearInterval(interval);
+        //document.getElementById("startStop").innerHTML = "Start";
+        document.getElementById("start").style.color = 'white';
+		document.getElementById("pause").style.color = 'gray';
+        status = "stopped";
+
+    }
+}
+
+function settime(){
+	var time = document.getElementById("fname").value;
+	var index = 0;
+	var nums = [];
+	for (var item of time.split(":", 4)) {
+		if(!isNaN(item) && item != ""){
+			item = Math.max(0, Math.min(item, 99));
+			//if item < 10;
+			//	item = "0" + item.toString();
+			nums.push(item)
+			index++;
+		}
+	}
+	var locinx = 0;
+	nums = nums.reverse();
+	while (nums.length > 0 && nums.length < 4) nums.push(0);
+	for (var ele of nums) {
+		console.log(ele);
+		switch (locinx) {
+			case 0:
+				milsec = ele;
+			break;
+			case 1:
+			    seconds = Math.min(ele, 59);
+			break;
+			case 2:
+			    minutes = Math.min(ele, 59);
+			break;
+			case 3:
+				hours = Math.min(ele, 59);
+			break;
+		}
+		locinx++
+	}
+	setDisplay()
+}
+
+function zeros(){
+	document.getElementById("fname").value = "00:00:00:00";
+}
+
+function clearbox(){
+	document.getElementById("fname").value = "";
+}
+
+//Function to reset the stopwatch
+function reset(){
+    window.clearInterval(interval);
+    milsec = 0;
+    seconds = 0;
+    minutes = 0;
+    hours = 0;
+    document.getElementById("display").innerHTML = "00:00:00:00";
+    document.getElementById("start").style.color = 'white';
+    document.getElementById("pause").style.color = 'gray';
+    //document.getElementById("startStop").innerHTML = "Start";
+
+}
+
+
+    </script>
+    
+    <!--
+    <link rel="stylesheet" href="styles.css">
+	<script type="text/javascript" src="script.js"></script>
+	-->
+
+</head>
+<body class="back">
+
+    <div class="container">
+
+        <div id="display">
+            00:00:00:00
+        </div>
+
+        <div class="buttons">
+            <button id="start" onclick="start()">Start</button><!--
+            --><button id="slash" onclick="start()">/</button><!--
+            --><button id="pause" onclick="start()">Pause</button>
+            <button id="reset" onclick="reset()">Reset</button>
+            <span>&nbsp; &nbsp; &nbsp;</span>
+            <input type="text" id="fname" name="fname" value="00:00:00:00" placeholder="HH:MM:SS:MS"><!--
+            --><button id="set" onclick="settime()">Set</button><!--
+            --><button id="zeros" onclick="zeros()">All zero's</button><!--
+            --><button id="clear" onclick="clearbox()">Clear box</button>
+        </div>
+
+    </div>
+    
+</body>
+</html>
